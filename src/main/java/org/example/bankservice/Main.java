@@ -2,6 +2,7 @@ package org.example.bankservice;
 
 public class Main {
     /*
+        ######   BankService-Setup   ######
 
         Erstellt eine Record 'Client' mit den Eigenschaften Vorname, Nachname und
         Kundennummer (wähle geeignete englische Feldnamen).

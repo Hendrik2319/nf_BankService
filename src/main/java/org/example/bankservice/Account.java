@@ -13,11 +13,11 @@ public class Account {
         this.client = client;
     }
 
-    public void deposit(double money) {
-        balance = balance.add(BigDecimal.valueOf(money));
+    public void deposit(BigDecimal value) {
+        balance = balance.add( value );
     }
 
-    public void withdraw(double money) {
-        balance = balance.subtract(BigDecimal.valueOf(money));
+    public void withdraw(BigDecimal value) {
+        balance = balance.subtract( value );
     }
 }
