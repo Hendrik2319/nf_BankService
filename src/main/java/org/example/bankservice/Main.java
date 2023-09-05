@@ -1,5 +1,7 @@
 package org.example.bankservice;
 
+import java.util.Locale;
+
 public class Main {
     /*
         -----------------------------------
@@ -92,6 +94,15 @@ public class Main {
 
      */
     public static void main(String[] args) {
+
+        System.out.println(0.06 * 0.07);
+        System.out.println(215.0 / 120.0);
+
+        double a = 0.0212;
+//        double a = Double.NaN;
+        double b = Math.round(0.2123254*1000) / 10000.0;
+        //noinspection ConstantValue
+        System.out.printf(Locale.ENGLISH, "a:%f, b:%f -> a %s b%n", a,b, a==b ? "==" : a<b ? "<" : a>b ? ">" : "??");
 
     }
 }

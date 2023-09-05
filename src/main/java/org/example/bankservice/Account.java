@@ -7,6 +7,27 @@ import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public class Account {
+    /*
+        -----------------------------------
+        ----  BankService-Setup
+
+        Erstellt eine Record 'Client' mit den Eigenschaften Vorname, Nachname und
+        Kundennummer (wähle geeignete englische Feldnamen).
+
+        Erstellt eine Klasse 'Account' (kein Record, soll vorerst veränderlich sein)
+        mit den Eigenschaften Kontonummer (String), Kontostand (BigDecimal) und dem zugehörigen Kunden.
+
+        Bitte poste hier den Link zu eurem GitHub-Repository, in dem ihr eure Lösungen teilt.
+
+
+        ---------------------------------------
+        ----  Kontostand
+
+        Nun implementieren wir convenience-Methoden, um den Kontostand zu ermitteln und zu verändern.
+
+        Implementiert eine Methode, um Geld auf das Konto einzuzahlen.
+        Implementiert eine Methode, um Geld vom Konto abzuheben.
+     */
     private final String accountNumber;
     private BigDecimal balance;
     private final Set<Client> clients;
