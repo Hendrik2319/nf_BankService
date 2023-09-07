@@ -70,6 +70,8 @@ public class Main {
         Erweitert den 'BankService' um eine Methode, die Zinsen für alle Kundenkonten basierend
         auf einem Zinssatz berechnet und gutschreibt. (Zinsen = Kontostand * (Zinssatz / 100).
 
+        ###    Stupid calculation:  with current balance only and without time range
+
 
         ---------------------------------------
         ----  Transaktionen

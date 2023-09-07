@@ -40,11 +40,12 @@ class BankServiceTest {
         BigDecimal initialBalance2 = new BigDecimal("90");
         BigDecimal expectedFinalBalance1 = new BigDecimal("87.60");
         BigDecimal expectedFinalBalance2 = new BigDecimal("102.40");
+        long now = System.currentTimeMillis();
 
         // When
-        bankService.deposit(accountNo1, initialBalance1);
-        bankService.deposit(accountNo2, initialBalance2);
-        bankService.transfer(transferValue, accountNo1, accountNo2);
+        bankService.deposit(accountNo1, initialBalance1, now, "Initial Balance");
+        bankService.deposit(accountNo2, initialBalance2, now, "Initial Balance");
+        bankService.transfer(transferValue, accountNo1, accountNo2, now, "Test Transfer");
         BigDecimal actualBalance1 = account1.getBalance();
         BigDecimal actualBalance2 = account2.getBalance();
 
@@ -60,9 +61,10 @@ class BankServiceTest {
         String accountNo1 = bankService.createAccount(new Client("FirstName1", "LastName1", 12345));
         bankService.addClientToAccount(accountNo1, new Client("FirstName2", "LastName2", 12346));
         bankService.addClientToAccount(accountNo1, new Client("FirstName3", "LastName3", 12347));
+        long now = System.currentTimeMillis();
 
         BigDecimal oldBalance = new BigDecimal("100.00");
-        bankService.deposit(accountNo1, oldBalance);
+        bankService.deposit(accountNo1, oldBalance, now, "Initial Balance");
 
         // When
         List<String> newAccountNumbers = bankService.split(accountNo1);

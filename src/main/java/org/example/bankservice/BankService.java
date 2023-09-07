@@ -59,7 +59,7 @@ public class BankService {
         while (accounts.containsKey( newAccountNumber ))
             newAccountNumber = String.format("%010d_%04d", client.customerNumber(), ++index);
 
-        accounts.put(newAccountNumber, new Account(newAccountNumber, BigDecimal.ZERO, client));
+        accounts.put(newAccountNumber, new Account(newAccountNumber, client));
         return newAccountNumber;
     }
 
@@ -80,17 +80,17 @@ public class BankService {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public boolean deposit(String accountNumber, BigDecimal value) {
-        return doWithAccount(accountNumber, "Can't deposit money.", account -> account.deposit(value));
+    public boolean deposit(String accountNumber, BigDecimal value, long timestamp_ms, String description) {
+        return doWithAccount(accountNumber, "Can't deposit money.", account -> account.deposit(value, timestamp_ms, description));
     }
 
     @SuppressWarnings({"UnusedReturnValue"})
-    public boolean withdraw(String accountNumber, BigDecimal value) {
-        return doWithAccount(accountNumber, "Can't withdraw money.", account -> account.withdraw(value));
+    public boolean withdraw(String accountNumber, BigDecimal value, long timestamp_ms, String description) {
+        return doWithAccount(accountNumber, "Can't withdraw money.", account -> account.withdraw(value, timestamp_ms, description));
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public boolean transfer(BigDecimal value, String sourceAccountNumber, String targetAccountNumber) {
+    public boolean transfer(BigDecimal value, String sourceAccountNumber, String targetAccountNumber, long timestamp_ms, String description) {
         Account sourceAccount = accounts.get(sourceAccountNumber);
         Account targetAccount = accounts.get(targetAccountNumber);
         if (sourceAccount==null) {
@@ -102,8 +102,8 @@ public class BankService {
             return false;
         }
 
-        sourceAccount.withdraw( value );
-        targetAccount.deposit ( value );
+        sourceAccount.withdraw( value, timestamp_ms, "Transfer From: "+description );
+        targetAccount.deposit ( value, timestamp_ms, "Transfer To: "+description );
         return true;
     }
 
@@ -134,15 +134,20 @@ public class BankService {
             newAccountNumbers.add(newAccountNumber);
             Account newAccount = accounts.get(newAccountNumber);
             if (newAccount==null) throw new IllegalStateException("Newly created account doesn't exists");
-            newAccount.deposit(floorValue);
         });
 
+        long now = System.currentTimeMillis();
         BigDecimal extraCent = new BigDecimal("0.01");
-        for (int i=0; i<remainingCentCount; i++) {
+        for (int i=0; i<newAccountNumbers.size(); i++) {
             String newAccountNumber = newAccountNumbers.get(i);
             Account newAccount = accounts.get(newAccountNumber);
             if (newAccount==null) throw new IllegalStateException("Newly created account doesn't exists");
-            newAccount.deposit(extraCent);
+            newAccount.deposit(
+                    i<remainingCentCount
+                        ? floorValue.add(extraCent)
+                        : floorValue,
+                    now, "Initial Balance"
+            );
         }
 
         accounts.remove(accountNumber);
