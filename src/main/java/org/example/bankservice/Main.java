@@ -1,5 +1,6 @@
 package org.example.bankservice;
 
+import java.math.BigDecimal;
 import java.util.Locale;
 
 public class Main {
@@ -60,9 +61,6 @@ public class Main {
         (gilt auch für die folgenden Aufgaben)
 
 
-    #################
-
-
         ---------------------------------------
         ----  Zinsrechner
 
@@ -82,6 +80,9 @@ public class Main {
         nach der Veränderung), eine Beschreibung (optional) und ein Datum. Die Transaktionen sollen
         als Record implementiert werden. Um den aktuellen Kontostand zu ermitteln soll der BankService
         das Saldo der letzten Transaktion zurückgeben.
+
+
+    #################
 
 
         ---------------------------------------
@@ -106,5 +107,14 @@ public class Main {
         //noinspection ConstantValue
         System.out.printf(Locale.ENGLISH, "a:%f, b:%f -> a %s b%n", a,b, a==b ? "==" : a<b ? "<" : a>b ? ">" : "??");
 
+        System.out.println();
+
+        BigDecimal n1 = new BigDecimal("100.00");
+        BigDecimal n2 = new BigDecimal("100");
+        System.out.println("n1: "+n1);
+        System.out.println("n2: "+n2);
+        System.out.println("n1==n2: "+(n1==n2));
+        System.out.println("n1.equals(n2): "+ n1.equals(n2));
+        System.out.println("n1.compareTo(n2): "+ n1.compareTo(n2));
     }
 }

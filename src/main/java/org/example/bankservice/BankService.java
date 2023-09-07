@@ -2,6 +2,7 @@ package org.example.bankservice;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,19 +48,27 @@ public class BankService {
      */
 
     private final Map<String,Account> accounts;
+    final TestInterface testInterface;
 
     public BankService() {
         this.accounts = new HashMap<>();
+        testInterface = new TestInterface();
     }
 
-    public String createAccount( Client client ) {
+    class TestInterface {
+        Account getAccount(String accountNumber) {
+            return accounts.get(accountNumber);
+        }
+    }
+
+    public String createAccount( Client client, Instant timestamp) {
 
         int index = 1;
         String newAccountNumber = String.format("%010d_%04d", client.customerNumber(), index);
         while (accounts.containsKey( newAccountNumber ))
             newAccountNumber = String.format("%010d_%04d", client.customerNumber(), ++index);
 
-        accounts.put(newAccountNumber, new Account(newAccountNumber, client));
+        accounts.put(newAccountNumber, new Account(newAccountNumber, client, timestamp));
         return newAccountNumber;
     }
 
@@ -80,17 +89,17 @@ public class BankService {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public boolean deposit(String accountNumber, BigDecimal value, long timestamp_ms, String description) {
-        return doWithAccount(accountNumber, "Can't deposit money.", account -> account.deposit(value, timestamp_ms, description));
+    public boolean deposit(String accountNumber, BigDecimal value, Instant timestamp, String description) {
+        return doWithAccount(accountNumber, "Can't deposit money.", account -> account.deposit(value, timestamp, description));
     }
 
     @SuppressWarnings({"UnusedReturnValue"})
-    public boolean withdraw(String accountNumber, BigDecimal value, long timestamp_ms, String description) {
-        return doWithAccount(accountNumber, "Can't withdraw money.", account -> account.withdraw(value, timestamp_ms, description));
+    public boolean withdraw(String accountNumber, BigDecimal value, Instant timestamp, String description) {
+        return doWithAccount(accountNumber, "Can't withdraw money.", account -> account.withdraw(value, timestamp, description));
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public boolean transfer(BigDecimal value, String sourceAccountNumber, String targetAccountNumber, long timestamp_ms, String description) {
+    public boolean transfer(BigDecimal value, String sourceAccountNumber, String targetAccountNumber, Instant timestamp, String description) {
         Account sourceAccount = accounts.get(sourceAccountNumber);
         Account targetAccount = accounts.get(targetAccountNumber);
         if (sourceAccount==null) {
@@ -102,16 +111,12 @@ public class BankService {
             return false;
         }
 
-        sourceAccount.withdraw( value, timestamp_ms, "Transfer From: "+description );
-        targetAccount.deposit ( value, timestamp_ms, "Transfer To: "+description );
+        sourceAccount.withdraw( value, timestamp, "Transfer From: "+description );
+        targetAccount.deposit ( value, timestamp, "Transfer To: "+description );
         return true;
     }
 
-    public Account getAccount(String accountNumber) {
-        return accounts.get(accountNumber);
-    }
-
-    public List<String> split(String accountNumber) {
+    public List<String> split(String accountNumber, Instant timestamp) {
         Account account = accounts.get(accountNumber);
         if (account==null) {
             System.out.printf("Account spliting aborted. Can't find account \"%s\".%n", accountNumber);
@@ -130,7 +135,7 @@ public class BankService {
 
         List<String> newAccountNumbers = new ArrayList<>();
         account.foreachClient(client -> {
-            String newAccountNumber = createAccount(client);
+            String newAccountNumber = createAccount(client, timestamp);
             newAccountNumbers.add(newAccountNumber);
             Account newAccount = accounts.get(newAccountNumber);
             if (newAccount==null) throw new IllegalStateException("Newly created account doesn't exists");
@@ -146,7 +151,7 @@ public class BankService {
                     i<remainingCentCount
                         ? floorValue.add(extraCent)
                         : floorValue,
-                    now, "Initial Balance"
+                    timestamp, "Initial Balance"
             );
         }
 

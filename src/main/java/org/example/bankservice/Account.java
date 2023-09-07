@@ -1,6 +1,7 @@
 package org.example.bankservice;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -41,28 +42,37 @@ public class Account {
     private final String accountNumber;
     private final Stack<Transaction> transactions;
     private final Set<Client> clients;
+    final TestInterface testInterface;
 
-    public Account(String accountNumber, Client client) {
+    public Account(String accountNumber, Client client, Instant timestamp) {
         this.accountNumber = accountNumber;
-        this.transactions = new Stack<>();
-        this.clients = new HashSet<>();
-        this.clients.add(client);
+        clients = new HashSet<>();
+        clients.add(client);
+        transactions = new Stack<>();
+        transactions.add(new Transaction(BigDecimal.ZERO, BigDecimal.ZERO, timestamp,"Account created"));
+        testInterface = new TestInterface();
+    }
+
+    class TestInterface {
+        Transaction getTransaction(int index) {
+            return index<0 || index>=transactions.size() ? null : transactions.get(index);
+        }
     }
 
     public void addClient(Client client) {
         clients.add(client);
     }
 
-    public void deposit(BigDecimal value, long timestamp_ms, String description) {
-        addTransaction(value, timestamp_ms, description);
+    public void deposit(BigDecimal value, Instant timestamp, String description) {
+        addTransaction(value, timestamp, description);
     }
 
-    public void withdraw(BigDecimal value, long timestamp_ms, String description) {
-        addTransaction(value.negate(), timestamp_ms, description);
+    public void withdraw(BigDecimal value, Instant timestamp, String description) {
+        addTransaction(value.negate(), timestamp, description);
     }
 
-    private void addTransaction(BigDecimal change, long timestamp_ms, String description) {
-        Transaction transaction = new Transaction(change, getBalance().add(change), timestamp_ms, description);
+    private void addTransaction(BigDecimal change, Instant timestamp, String description) {
+        Transaction transaction = new Transaction(change, getBalance().add(change), timestamp, description);
         transactions.push(transaction);
     }
 

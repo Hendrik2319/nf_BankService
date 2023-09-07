@@ -1,6 +1,7 @@
 package org.example.bankservice;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 /*
         ---------------------------------------
@@ -13,5 +14,5 @@ import java.math.BigDecimal;
         als Record implementiert werden. Um den aktuellen Kontostand zu ermitteln soll der BankService
         das Saldo der letzten Transaktion zurückgeben.
  */
-public record Transaction(BigDecimal change, BigDecimal balance, long timestamp_ms, String description) {
+public record Transaction(BigDecimal change, BigDecimal balance, Instant timestamp, String description) {
 }
