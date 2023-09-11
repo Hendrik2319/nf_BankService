@@ -61,14 +61,18 @@ public class BankService {
         }
     }
 
-    public String createAccount( Client client, Instant timestamp) {
+    public void showListOfTransactions(String accountNumber) {
+        doWithAccount(accountNumber, "Can't show transactions.", account -> account.showListOfTransactions(""));
+    }
+
+    public String createAccount(Client client, Instant timestamp, BigDecimal ratePerAnno) {
 
         int index = 1;
         String newAccountNumber = String.format("%010d_%04d", client.customerNumber(), index);
         while (accounts.containsKey( newAccountNumber ))
             newAccountNumber = String.format("%010d_%04d", client.customerNumber(), ++index);
 
-        accounts.put(newAccountNumber, new Account(newAccountNumber, client, timestamp));
+        accounts.put(newAccountNumber, new Account(newAccountNumber, client, timestamp, ratePerAnno));
         return newAccountNumber;
     }
 
@@ -135,7 +139,7 @@ public class BankService {
 
         List<String> newAccountNumbers = new ArrayList<>();
         account.foreachClient(client -> {
-            String newAccountNumber = createAccount(client, timestamp);
+            String newAccountNumber = createAccount(client, timestamp, account.getRatePerAnno());
             newAccountNumbers.add(newAccountNumber);
             Account newAccount = accounts.get(newAccountNumber);
             if (newAccount==null) throw new IllegalStateException("Newly created account doesn't exists");

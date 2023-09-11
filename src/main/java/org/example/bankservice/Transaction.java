@@ -2,6 +2,7 @@ package org.example.bankservice;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Locale;
 
 /*
         ---------------------------------------
@@ -15,4 +16,7 @@ import java.time.Instant;
         das Saldo der letzten Transaktion zurückgeben.
  */
 public record Transaction(BigDecimal change, BigDecimal balance, Instant timestamp, String description) {
+    public String toLine() {
+        return String.format(Locale.ENGLISH, "[%s]  Bl: %13.4f  Ch: %13.4f  \"%s\"", timestamp, balance, change, description);
+    }
 }

@@ -1,6 +1,9 @@
 package org.example.bankservice;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Locale;
 
 public class Main {
@@ -113,8 +116,31 @@ public class Main {
         BigDecimal n2 = new BigDecimal("100");
         System.out.println("n1: "+n1);
         System.out.println("n2: "+n2);
+        //noinspection NumberEquality
         System.out.println("n1==n2: "+(n1==n2));
         System.out.println("n1.equals(n2): "+ n1.equals(n2));
         System.out.println("n1.compareTo(n2): "+ n1.compareTo(n2));
+        System.out.println();
+
+        testBanking();
+    }
+
+    private static void testBanking() {
+        Instant timeCreated  = ZonedDateTime.of(2023, 7, 20, 12, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant timeDeposit1 = ZonedDateTime.of(2023, 8,  1, 15, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        Instant timeDeposit2 = ZonedDateTime.of(2023, 8,  5,  8, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        BigDecimal valueDeposit1 = new BigDecimal("100.34");
+        BigDecimal valueDeposit2 = new BigDecimal( "23.42");
+
+        BankService bankService = new BankService();
+        Client client = new Client("FirstName1", "LastName1", 12345);
+        BigDecimal ratePerAnno = new BigDecimal("0.035");
+        String accountNo = bankService.createAccount(client, timeCreated, ratePerAnno);
+
+        // When
+        bankService.deposit(accountNo, valueDeposit1, timeDeposit1, "First Transaction");
+        bankService.deposit(accountNo, valueDeposit2, timeDeposit2, "Second Transaction");
+
+        bankService.showListOfTransactions(accountNo);
     }
 }

@@ -1,6 +1,8 @@
 package org.example.bankservice;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
@@ -40,12 +42,16 @@ public class Account {
         das Saldo der letzten Transaktion zurückgeben.
      */
     private final String accountNumber;
+
+    private final BigDecimal ratePerAnno;
+
     private final Stack<Transaction> transactions;
     private final Set<Client> clients;
     final TestInterface testInterface;
 
-    public Account(String accountNumber, Client client, Instant timestamp) {
+    public Account(String accountNumber, Client client, Instant timestamp, BigDecimal ratePerAnno) {
         this.accountNumber = accountNumber;
+        this.ratePerAnno = ratePerAnno;
         clients = new HashSet<>();
         clients.add(client);
         transactions = new Stack<>();
@@ -54,6 +60,7 @@ public class Account {
     }
 
     class TestInterface {
+
         Transaction getTransaction(int index) {
             return index<0 || index>=transactions.size() ? null : transactions.get(index);
         }
@@ -72,12 +79,36 @@ public class Account {
     }
 
     private void addTransaction(BigDecimal change, Instant timestamp, String description) {
+        Transaction lastTransaction = transactions.lastElement();
+
+        long duration_s = Duration.between(lastTransaction.timestamp(), timestamp).getSeconds();
+        BigDecimal localRate = computeLocalRate(duration_s);
+
+        BigDecimal interest = lastTransaction.balance().multiply(localRate);
+        interest = interest.setScale(2, RoundingMode.HALF_EVEN);
+
+        addTransaction_raw(interest, timestamp, "interest of last time period");
+        addTransaction_raw(change  , timestamp, description);
+    }
+
+    private void addTransaction_raw(BigDecimal change, Instant timestamp, String description) {
         Transaction transaction = new Transaction(change, getBalance().add(change), timestamp, description);
         transactions.push(transaction);
     }
 
+    private BigDecimal computeLocalRate(long duration_s) {
+        // rate_konform := (1 + rate)^(duration / 1 year) - 1;
+        double rate = ratePerAnno.doubleValue();
+        double rate_konform = Math.pow(1 + rate, duration_s / (365.0 * 86400.0)) - 1;
+        return BigDecimal.valueOf(rate_konform);
+    }
+
     public String getAccountNumber() {
         return accountNumber;
+    }
+
+    public BigDecimal getRatePerAnno() {
+        return ratePerAnno;
     }
 
     public BigDecimal getBalance() {
@@ -86,6 +117,7 @@ public class Account {
                 : transactions.peek().balance();
     }
 
+    @SuppressWarnings("CommentedOutCode")
     @Override
     public String toString() {
         return "Account{accountNumber='%s', %d transactions, %d clients}".formatted(accountNumber, transactions.size(), clients.size());
@@ -104,5 +136,11 @@ public class Account {
 
     public int getClientCount() {
         return clients.size();
+    }
+
+    public void showListOfTransactions(String indent) {
+        System.out.printf("%sTransactions: [%d]%n", indent, transactions.size());
+        for (int i = 0; i < transactions.size(); i++)
+            System.out.printf("%s   [%03d] %s%n", indent, i + 1, transactions.get(i).toLine());
     }
 }

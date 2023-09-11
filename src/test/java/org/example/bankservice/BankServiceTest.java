@@ -22,9 +22,10 @@ class BankServiceTest {
 
         BankService bankService = new BankService();
         Client client = new Client("FirstName1", "LastName1", 12345);
+        BigDecimal ratePerAnno = new BigDecimal("0.035");
 
         // When
-        String accountNo = bankService.createAccount(client, now);
+        String accountNo = bankService.createAccount(client, now, ratePerAnno);
 
         // Then
         assertNotNull(accountNo, "No AccountNumber returned");
@@ -53,7 +54,8 @@ class BankServiceTest {
 
         BankService bankService = new BankService();
         Client client = new Client("FirstName1", "LastName1", 12345);
-        String accountNo = bankService.createAccount(client, timeCreated);
+        BigDecimal ratePerAnno = new BigDecimal("0.0"); // sorry
+        String accountNo = bankService.createAccount(client, timeCreated, ratePerAnno);
 
         // When
         bankService.deposit(accountNo, valueDeposit1, timeDeposit1, "First Transaction");
@@ -66,8 +68,8 @@ class BankServiceTest {
         assertNotNull(account, "Can't find account after creation");
 
         Transaction initialTransaction  = account.testInterface.getTransaction(0);
-        Transaction deposit1Transaction = account.testInterface.getTransaction(1);
-        Transaction deposit2Transaction = account.testInterface.getTransaction(2);
+        Transaction deposit1Transaction = account.testInterface.getTransaction(2);
+        Transaction deposit2Transaction = account.testInterface.getTransaction(4);
         assertNotNull(initialTransaction , "No "+"initial "  +"transaction");
         assertNotNull(deposit1Transaction, "No "+"deposit 1 "+"transaction");
         assertNotNull(deposit2Transaction, "No "+"deposit 2 "+"transaction");
@@ -88,8 +90,10 @@ class BankServiceTest {
 
         BankService bankService = new BankService();
         Client client1 = new Client("FirstName1", "LastName1", 12345);
-        String accountNo1 = bankService.createAccount(client1, now);
-        String accountNo2 = bankService.createAccount(client1, now);
+        BigDecimal ratePerAnno = new BigDecimal("0.035");
+
+        String accountNo1 = bankService.createAccount(client1, now, ratePerAnno);
+        String accountNo2 = bankService.createAccount(client1, now, ratePerAnno);
         Account account1 = bankService.testInterface.getAccount(accountNo1);
         Account account2 = bankService.testInterface.getAccount(accountNo2);
 
@@ -118,7 +122,7 @@ class BankServiceTest {
         Instant now = clock.instant();
 
         BankService bankService = new BankService();
-        String accountNo1 = bankService.createAccount(new Client("FirstName1", "LastName1", 12345), now);
+        String accountNo1 = bankService.createAccount(new Client("FirstName1", "LastName1", 12345), now, new BigDecimal("0.035"));
         bankService.addClientToAccount(accountNo1, new Client("FirstName2", "LastName2", 12346));
         bankService.addClientToAccount(accountNo1, new Client("FirstName3", "LastName3", 12347));
 
