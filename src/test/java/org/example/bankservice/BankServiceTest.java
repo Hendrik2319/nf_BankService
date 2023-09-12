@@ -3,8 +3,6 @@ package org.example.bankservice;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.Clock;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -17,8 +15,7 @@ class BankServiceTest {
     @Test
     void testCreateAccount() {
         // Given
-        Clock clock = Clock.system(ZoneId.systemDefault());
-        Instant now = clock.instant();
+        ZonedDateTime now = ZonedDateTime.now();
 
         BankService bankService = new BankService();
         Client client = new Client("FirstName1", "LastName1", 12345);
@@ -43,18 +40,22 @@ class BankServiceTest {
     @Test
     void testDeposit() {
         // Given
-        Instant timeCreated  = ZonedDateTime.of(2023, 7, 20, 12, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        Instant timeDeposit1 = ZonedDateTime.of(2023, 8,  1, 15, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        Instant timeDeposit2 = ZonedDateTime.of(2023, 8,  5,  8, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        BigDecimal valueDeposit1 = new BigDecimal("100.34");
-        BigDecimal valueDeposit2 = new BigDecimal( "23.42");
+        ZonedDateTime timeCreated  = ZonedDateTime.of(2023, 7, 20, 12, 0, 0, 0, ZoneId.systemDefault());
+        ZonedDateTime timeDeposit1 = ZonedDateTime.of(2023, 8,  1, 15, 0, 0, 0, ZoneId.systemDefault());
+        ZonedDateTime timeDeposit2 = ZonedDateTime.of(2023, 8,  5,  8, 0, 0, 0, ZoneId.systemDefault());
+        BigDecimal valueInterest1 = new BigDecimal(  "0.00");
+        BigDecimal valueDeposit1  = new BigDecimal("100.34");
+        BigDecimal valueInterest2 = new BigDecimal(  "0.04");
+        BigDecimal valueDeposit2  = new BigDecimal( "23.42");
         BigDecimal balance0 = new BigDecimal(  "0.00");
-        BigDecimal balance1 = new BigDecimal("100.34");
-        BigDecimal balance2 = new BigDecimal("123.76");
+        BigDecimal balance1 = new BigDecimal(  "0.00");
+        BigDecimal balance2 = new BigDecimal("100.34");
+        BigDecimal balance3 = new BigDecimal("100.38");
+        BigDecimal balance4 = new BigDecimal("123.80");
 
         BankService bankService = new BankService();
         Client client = new Client("FirstName1", "LastName1", 12345);
-        BigDecimal ratePerAnno = new BigDecimal("0.0"); // sorry
+        BigDecimal ratePerAnno = new BigDecimal("0.035");
         String accountNo = bankService.createAccount(client, timeCreated, ratePerAnno);
 
         // When
@@ -67,26 +68,33 @@ class BankServiceTest {
         Account account = bankService.testInterface.getAccount(accountNo);
         assertNotNull(account, "Can't find account after creation");
 
-        Transaction initialTransaction  = account.testInterface.getTransaction(0);
-        Transaction deposit1Transaction = account.testInterface.getTransaction(2);
-        Transaction deposit2Transaction = account.testInterface.getTransaction(4);
-        assertNotNull(initialTransaction , "No "+"initial "  +"transaction");
-        assertNotNull(deposit1Transaction, "No "+"deposit 1 "+"transaction");
-        assertNotNull(deposit2Transaction, "No "+"deposit 2 "+"transaction");
+        Transaction trInitial   = account.testInterface.getTransaction(0);
+        Transaction trInterest1 = account.testInterface.getTransaction(1);
+        Transaction trDeposit1  = account.testInterface.getTransaction(2);
+        Transaction trInterest2 = account.testInterface.getTransaction(3);
+        Transaction trDeposit2  = account.testInterface.getTransaction(4);
+        assertNotNull(trInitial  , "No "+"initial "   +"transaction");
+        assertNotNull(trInterest1, "No "+"interest 1 "+"transaction");
+        assertNotNull(trDeposit1 , "No "+"deposit 1 " +"transaction");
+        assertNotNull(trInterest2, "No "+"interest 1 "+"transaction");
+        assertNotNull(trDeposit2 , "No "+"deposit 2 " +"transaction");
 
-        assertTrue(balance0       .compareTo(initialTransaction .balance())==0, "Balance of %s transaction == %s".formatted("initial "  , balance0));
-        assertTrue(balance1       .compareTo(deposit1Transaction.balance())==0, "Balance of %s transaction == %s".formatted("deposit 1 ", balance1));
-        assertTrue(balance2       .compareTo(deposit2Transaction.balance())==0, "Balance of %s transaction == %s".formatted("deposit 2 ", balance2));
-        assertTrue(BigDecimal.ZERO.compareTo(initialTransaction .change ())==0, "Change of %s transaction == %s".formatted("initial "  , BigDecimal.ZERO));
-        assertTrue(valueDeposit1  .compareTo(deposit1Transaction.change ())==0, "Change of %s transaction == %s".formatted("deposit 1 ", valueDeposit1  ));
-        assertTrue(valueDeposit2  .compareTo(deposit2Transaction.change ())==0, "Change of %s transaction == %s".formatted("deposit 2 ", valueDeposit2  ));
+        assertTrue(balance0       .compareTo(trInitial  .balance())==0, "Balance of %s transaction == %s".formatted("initial "   , balance0));
+        assertTrue(balance1       .compareTo(trInterest1.balance())==0, "Balance of %s transaction == %s".formatted("interest 1 ", balance1));
+        assertTrue(balance2       .compareTo(trDeposit1 .balance())==0, "Balance of %s transaction == %s".formatted("deposit 1 " , balance2));
+        assertTrue(balance3       .compareTo(trInterest2.balance())==0, "Balance of %s transaction == %s".formatted("interest 1 ", balance2));
+        assertTrue(balance4       .compareTo(trDeposit2 .balance())==0, "Balance of %s transaction == %s".formatted("deposit 2 " , balance2));
+        assertTrue(BigDecimal.ZERO.compareTo(trInitial  .change ())==0, "Change of %s transaction == %s".formatted("initial "   , BigDecimal.ZERO));
+        assertTrue(valueInterest1 .compareTo(trInterest1.change ())==0, "Change of %s transaction == %s".formatted("interest 1 ", valueInterest1 ));
+        assertTrue(valueDeposit1  .compareTo(trDeposit1 .change ())==0, "Change of %s transaction == %s".formatted("deposit 1 " , valueDeposit1  ));
+        assertTrue(valueInterest2 .compareTo(trInterest2.change ())==0, "Change of %s transaction == %s".formatted("interest 1 ", valueInterest2 ));
+        assertTrue(valueDeposit2  .compareTo(trDeposit2 .change ())==0, "Change of %s transaction == %s".formatted("deposit 2 " , valueDeposit2  ));
     }
 
     @Test
     void testTransfer() {
         // Given
-        Clock clock = Clock.system(ZoneId.systemDefault());
-        Instant now = clock.instant();
+        ZonedDateTime now = ZonedDateTime.now();
 
         BankService bankService = new BankService();
         Client client1 = new Client("FirstName1", "LastName1", 12345);
@@ -118,8 +126,7 @@ class BankServiceTest {
     @Test
     void testSplit() {
         // Given
-        Clock clock = Clock.system(ZoneId.systemDefault());
-        Instant now = clock.instant();
+        ZonedDateTime now = ZonedDateTime.now();
 
         BankService bankService = new BankService();
         String accountNo1 = bankService.createAccount(new Client("FirstName1", "LastName1", 12345), now, new BigDecimal("0.035"));

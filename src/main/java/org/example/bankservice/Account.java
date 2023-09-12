@@ -3,8 +3,10 @@ package org.example.bankservice;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
+import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
@@ -49,7 +51,7 @@ public class Account {
     private final Set<Client> clients;
     final TestInterface testInterface;
 
-    public Account(String accountNumber, Client client, Instant timestamp, BigDecimal ratePerAnno) {
+    public Account(String accountNumber, Client client, ZonedDateTime timestamp, BigDecimal ratePerAnno) {
         this.accountNumber = accountNumber;
         this.ratePerAnno = ratePerAnno;
         clients = new HashSet<>();
@@ -70,15 +72,15 @@ public class Account {
         clients.add(client);
     }
 
-    public void deposit(BigDecimal value, Instant timestamp, String description) {
+    public void deposit(BigDecimal value, ZonedDateTime timestamp, String description) {
         addTransaction(value, timestamp, description);
     }
 
-    public void withdraw(BigDecimal value, Instant timestamp, String description) {
+    public void withdraw(BigDecimal value, ZonedDateTime timestamp, String description) {
         addTransaction(value.negate(), timestamp, description);
     }
 
-    private void addTransaction(BigDecimal change, Instant timestamp, String description) {
+    private void addTransaction(BigDecimal change, ZonedDateTime timestamp, String description) {
         Transaction lastTransaction = transactions.lastElement();
 
         long duration_s = Duration.between(lastTransaction.timestamp(), timestamp).getSeconds();
@@ -91,7 +93,7 @@ public class Account {
         addTransaction_raw(change  , timestamp, description);
     }
 
-    private void addTransaction_raw(BigDecimal change, Instant timestamp, String description) {
+    private void addTransaction_raw(BigDecimal change, ZonedDateTime timestamp, String description) {
         Transaction transaction = new Transaction(change, getBalance().add(change), timestamp, description);
         transactions.push(transaction);
     }

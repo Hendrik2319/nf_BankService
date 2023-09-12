@@ -1,7 +1,6 @@
 package org.example.bankservice;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Locale;
@@ -126,9 +125,9 @@ public class Main {
     }
 
     private static void testBanking() {
-        Instant timeCreated  = ZonedDateTime.of(2023, 7, 20, 12, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        Instant timeDeposit1 = ZonedDateTime.of(2023, 8,  1, 15, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        Instant timeDeposit2 = ZonedDateTime.of(2023, 8,  5,  8, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+        ZonedDateTime timeCreated  = ZonedDateTime.of(2023, 7, 20, 12, 0, 0, 0, ZoneId.systemDefault());
+        ZonedDateTime timeDeposit1 = ZonedDateTime.of(2023, 8,  1, 15, 0, 0, 0, ZoneId.systemDefault());
+        ZonedDateTime timeDeposit2 = ZonedDateTime.of(2023, 8,  5,  8, 0, 0, 0, ZoneId.systemDefault());
         BigDecimal valueDeposit1 = new BigDecimal("100.34");
         BigDecimal valueDeposit2 = new BigDecimal( "23.42");
 

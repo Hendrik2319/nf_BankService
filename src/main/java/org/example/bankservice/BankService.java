@@ -2,7 +2,7 @@ package org.example.bankservice;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +65,7 @@ public class BankService {
         doWithAccount(accountNumber, "Can't show transactions.", account -> account.showListOfTransactions(""));
     }
 
-    public String createAccount(Client client, Instant timestamp, BigDecimal ratePerAnno) {
+    public String createAccount(Client client, ZonedDateTime timestamp, BigDecimal ratePerAnno) {
 
         int index = 1;
         String newAccountNumber = String.format("%010d_%04d", client.customerNumber(), index);
@@ -93,17 +93,17 @@ public class BankService {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public boolean deposit(String accountNumber, BigDecimal value, Instant timestamp, String description) {
+    public boolean deposit(String accountNumber, BigDecimal value, ZonedDateTime timestamp, String description) {
         return doWithAccount(accountNumber, "Can't deposit money.", account -> account.deposit(value, timestamp, description));
     }
 
     @SuppressWarnings({"UnusedReturnValue"})
-    public boolean withdraw(String accountNumber, BigDecimal value, Instant timestamp, String description) {
+    public boolean withdraw(String accountNumber, BigDecimal value, ZonedDateTime timestamp, String description) {
         return doWithAccount(accountNumber, "Can't withdraw money.", account -> account.withdraw(value, timestamp, description));
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public boolean transfer(BigDecimal value, String sourceAccountNumber, String targetAccountNumber, Instant timestamp, String description) {
+    public boolean transfer(BigDecimal value, String sourceAccountNumber, String targetAccountNumber, ZonedDateTime timestamp, String description) {
         Account sourceAccount = accounts.get(sourceAccountNumber);
         Account targetAccount = accounts.get(targetAccountNumber);
         if (sourceAccount==null) {
@@ -120,7 +120,7 @@ public class BankService {
         return true;
     }
 
-    public List<String> split(String accountNumber, Instant timestamp) {
+    public List<String> split(String accountNumber, ZonedDateTime timestamp) {
         Account account = accounts.get(accountNumber);
         if (account==null) {
             System.out.printf("Account spliting aborted. Can't find account \"%s\".%n", accountNumber);
